@@ -92,12 +92,12 @@ async function decodeAndDecompressBase64(base64String) {
   for (let i=0;i<parseInt(numrows.value);i++){
     t += faker.commerce.isbn() + "\t";
     t += faker.commerce.price() + "\t";
-    t += faker.commerce.product() + "\t";
-    t += faker.commerce.productAdjective() + "\t";
-    t += faker.commerce.productDescription() + "\t";
-    t += faker.commerce.productMaterial() + "\t";
-    t += faker.commerce.productName()+ "\t";
-    t += faker.commerce.department();
+    t += faker.commerce.product().padEnd(20) + "\t";
+    t += faker.commerce.productAdjective().padEnd(20) + "\t";
+    t += faker.commerce.productMaterial().padEnd(20) + "\t";
+    t += faker.commerce.department().padEnd(20) + "\t";
+    t += faker.commerce.productName().padEnd(30) + "\t";
+    t += faker.commerce.productDescription();
     t+="\n"
   }
   //console.log(t);
