@@ -66,23 +66,79 @@ H4sIAAAAAAAACrS9W3PsNrI1+Mz5FfU2MxGGAvfLo7e7fTlnu9vh7T4d33mjqigVWyyymkVuWf71Ewnw
 -->
 <script type="module">
 const blob = new Blob([document.getElementById("data").innerText], {type: "text/plain"});
-const blobURL = URL.createObjectURL(blob);
+const bloburl = URL.createObjectURL(blob);
+const blobdata = await fetch(bloburl).then(r => r.blob());
+//console.log(blobdata);
+let blobgzipb64 = await blobdata.text();
+//console.log(blobtext);
+function trimEmptyLines(str) {
+  return str.split(/\r?\n/).filter(line => line.trim() !== '').join('\n');
+}
+// remove empty lines... shouldn't be any
+blobgzipb64 = trimEmptyLines(blobgzipb64);
+console.log (blobgzipb64.substring(0,100) + "...");
+
 //console.log(blob);
 // Read the data
-const fileReader = new FileReader();
+//const fileReader = new FileReader();
+
+/*
 fileReader.onload = function() {
-	console.log("Contents:");// ,fileReader.result);
+	
+	console.log("loading:");// ,fileReader.result);
 	let x=0;
 	for (const line of fileReader.result.split(/r?\n/).filter(line => line.trim().length > 0)) {
 		x++;
-		console.log(x, line);
+		console.log(x, line.substing(0,20));
 	}
-    
+		
 };
+*/
 
-var b64string = await fileReader.readAsText(blob);
-console.log(b64string);
+
+/*
+function readBlobAsString() {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      resolve(event.target.result);
+    };
+
+    reader.onerror = (error) => {
+      reject(error);
+    };
+
+    reader.readAsText(file);
+  });
+}
+  */
+
+//section from https://gist.github.com/asidko/9c7064027039411a11323eaf7d8ea2a4
+const decompress = base64string => {
+    const bytes = Uint8Array.from(atob(base64string), c => c.charCodeAt(0));
+    const cs = new DecompressionStream('gzip');
+    const writer = cs.writable.getWriter();
+    writer.write(bytes);
+    writer.close();
+    return new Response(cs.readable).arrayBuffer().then(function (arrayBuffer) {
+        return new TextDecoder().decode(arrayBuffer);
+    });
+}
+// end section
+
+//var b64string = await fileReader.readAsText(blob);
+//console.log(b64string);
+//var decompressed = await decompress(b64string);
+//section from https://gist.github.com/asidko/9c7064027039411a11323eaf7d8ea2a4
+//Promise.resolve("Unzipping...")
+//    .then(v => decompress(b64string))
+ //   .then(v => console.log("Decomporessed value: %s", v));
+// end section
+
 //console.log(fileReader.readAsText(blob));
+let unzippedData = await decompress(blobgzipb64);
+console.log(unzippedData);
 </script>	
 </head>
 <body>
