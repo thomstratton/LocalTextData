@@ -76,7 +76,7 @@ function trimEmptyLines(str) {
 }
 // remove empty lines... shouldn't be any
 blobgzipb64 = trimEmptyLines(blobgzipb64);
-console.log (blobgzipb64.substring(0,100) + "...");
+console.log ("zipb64blob:",blobgzipb64.substring(0,100) + "...");
 
 //console.log(blob);
 // Read the data
@@ -138,7 +138,7 @@ const decompress = base64string => {
 
 //console.log(fileReader.readAsText(blob));
 let unzippedData = await decompress(blobgzipb64);
-console.log(unzippedData);
+console.log("unzippedData:",unzippedData.substring(0,100));
 </script>	
 </head>
 <body>
