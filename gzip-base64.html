@@ -6,166 +6,194 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title></title>
   <!--<link rel="stylesheet" href="css/style.css">-->
-<style>
-html {
-  font-family: sans-serif;
-}
-.content {
-    background: oldlace;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1;
-    padding-top: 2em;
-    width: 100%;
-    height: 90%;
-    box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -o-box-sizing: border-box;
-}
-.content .inner {
-     height: 100%;
-    overflow-y: scroll;
-}
-.content .inner .scroller {
-    height: 100%;
-}
-.bottom {
-  position: absolute;
-    top: 90%;
-    left: 0;
-    z-index: -1;
-    padding-top: 0em;
-    width: 100%;
-    height: 3em;
-    box-sizing: border-box;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    -o-box-sizing: border-box;
-}
-textarea {
-    /*height: 100%;*/
-    width: 100%;
-     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-     -moz-box-sizing: border-box;    /* Firefox, other Gecko */
-     box-sizing: border-box;         /* Opera/IE 8+ */
-     white-space: pre;
-    /*overflow-wrap:normal;*/
-    overflow-x: scroll;
-}
-</style>
-<script type="module">
-import { faker } from 'https://esm.sh/@faker-js/faker';
+  <style>
+    html {
+      font-family: sans-serif;
+    }
 
-async function compressAndEncodeBase64(string) {
-  const byteArray = new TextEncoder().encode(string);
-  const cs = new CompressionStream('gzip');
-  const writer = cs.writable.getWriter();
-  writer.write(byteArray);
-  writer.close();
+    .content {
+      background: oldlace;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: -1;
+      padding-top: 2em;
+      width: 100%;
+      height: 90%;
+      box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      -o-box-sizing: border-box;
+    }
 
-  const blob = await new Response(cs.readable).blob();
-  const base64String = await new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result.split(',')[1]);
-    reader.readAsDataURL(blob);
-  });
-  return base64String;
-}
+    .content .inner {
+      height: 100%;
+      overflow-y: scroll;
+    }
 
-async function decodeAndDecompressBase64(base64String) {
-  const blob = await fetch(`data:application/gzip;base64,${base64String}`).then(res => res.blob());
-  const ds = new DecompressionStream('gzip');
-  const reader = ds.readable.getReader();
-  const { value: chunk } = await reader.read();
-  const decodedString = new TextDecoder().decode(chunk);
-  return decodedString;
-}
- const generateButton = document.querySelector("#generate");
-  let t = "";
- generateButton.addEventListener("click", (event) => {
-  const numrows = document.querySelector("#numrows");
-  console.log("Generating ", parseInt(numrows.value), "rows of data");
-  const output = document.querySelector("#output");
+    .content .inner .scroller {
+      height: 100%;
+    }
 
-  for (let i=0;i<parseInt(numrows.value);i++){
-    t += faker.commerce.isbn() + "\t";
-    t += faker.commerce.price() + "\t";
-    t += faker.commerce.product().padEnd(20) + "\t";
-    t += faker.commerce.productAdjective().padEnd(20) + "\t";
-    t += faker.commerce.productMaterial().padEnd(20) + "\t";
-    t += faker.commerce.department().padEnd(20) + "\t";
-    t += faker.commerce.productName().padEnd(30) + "\t";
-    t += faker.commerce.productDescription();
-    t+="\n"
-  }
-  //console.log(t);
-  console.log("data generation complete");
-  //output.innerText = t;
-  output.value=t;
-});
+    .bottom {
+      position: absolute;
+      top: 90%;
+      left: 0;
+      z-index: -1;
+      padding-top: 0em;
+      width: 100%;
+      height: 3em;
+      box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      -o-box-sizing: border-box;
+    }
 
-const zipButton = document.querySelector("#zipbutton");
-zipButton.addEventListener("click", (event) => {
-const output = document.querySelector("#output");
-//const content = output.innerText;
-const content = output.value;
-const zippedoutput = document.querySelector("#zippedoutput");
-const b64promise = compressAndEncodeBase64(content);
-b64promise
-  .then(encoded => {
-    console.log("Compressed and Encoded");//, encoded);
-    //return decodeAndDecompressBase64(encoded);
-    zippedoutput.innerText=encoded;   
-    return encoded;
-  })
-  .then(decoded => {
-    //console.log("Decoded and Decompressed:", decoded);
-  })
-  .catch(error => console.error("Error:", error));
+    textarea {
+      /*height: 100%;*/
+      width: 100%;
+      -webkit-box-sizing: border-box;
+      /* Safari/Chrome, other WebKit */
+      -moz-box-sizing: border-box;
+      /* Firefox, other Gecko */
+      box-sizing: border-box;
+      /* Opera/IE 8+ */
+      white-space: pre;
+      /*overflow-wrap:normal;*/
+      overflow-x: scroll;
+    }
+  </style>
+  <script type="module">
+    import { faker } from 'https://esm.sh/@faker-js/faker';
 
-const copyZippedButton = document.querySelector("#copyZippedButton")
-copyZippedButton.addEventListener("click", (event) => {
-  const zippedoutput = document.querySelector("#zippedoutput");
-    //zippedOutput.select();
-    navigator.clipboard
-      .writeText(zippedoutput.innerText)
-      .then(() => {
-        alert("successfully copied");
-      })
-      .catch(() => {
-        alert("something went wrong");
+    function download(filename, text) {
+      const element = document.createElement('a');
+      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+      element.setAttribute('download', filename);
+
+      element.style.display = 'none';
+      document.body.appendChild(element);
+
+      element.click();
+
+      document.body.removeChild(element);
+    }
+
+    async function compressAndEncodeBase64(string) {
+      const byteArray = new TextEncoder().encode(string);
+      const cs = new CompressionStream('gzip');
+      const writer = cs.writable.getWriter();
+      writer.write(byteArray);
+      writer.close();
+
+      const blob = await new Response(cs.readable).blob();
+      const base64String = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+        reader.readAsDataURL(blob);
       });
-});
+      return base64String;
+    }
 
+    async function decodeAndDecompressBase64(base64String) {
+      const blob = await fetch(`data:application/gzip;base64,${base64String}`).then(res => res.blob());
+      const ds = new DecompressionStream('gzip');
+      const reader = ds.readable.getReader();
+      const { value: chunk } = await reader.read();
+      const decodedString = new TextDecoder().decode(chunk);
+      return decodedString;
+    }
+    const generateButton = document.querySelector("#generate");
+    let t = "";
+    generateButton.addEventListener("click", (event) => {
+      const numrows = document.querySelector("#numrows");
+      console.log("Generating ", parseInt(numrows.value), "rows of data");
+      const output = document.querySelector("#output");
 
-});
-</script>
+      for (let i = 0; i < parseInt(numrows.value); i++) {
+        t += faker.commerce.isbn() + "\t";
+        t += faker.commerce.price() + "\t";
+        t += faker.commerce.product().padEnd(20) + "\t";
+        t += faker.commerce.productAdjective().padEnd(20) + "\t";
+        t += faker.commerce.productMaterial().padEnd(20) + "\t";
+        t += faker.commerce.department().padEnd(20) + "\t";
+        t += faker.commerce.productName().padEnd(30) + "\t";
+        t += faker.commerce.productDescription();
+        t += "\n"
+      }
+      //console.log(t);
+      console.log("data generation complete");
+      //output.innerText = t;
+      output.value = t;
+    });
+
+    const zipButton = document.querySelector("#zipbutton");
+    zipButton.addEventListener("click", (event) => {
+      console.log("compressing...");
+      const output = document.querySelector("#output");
+      //const content = output.innerText;
+      const content = output.value;
+      const zippedoutput = document.querySelector("#zippedoutput");
+      const b64promise = compressAndEncodeBase64(content);
+      b64promise
+        .then(encoded => {
+          console.log("Compressed and Encoded");//, encoded);
+          //return decodeAndDecompressBase64(encoded);
+          zippedoutput.innerText = encoded;
+          return encoded;
+        })
+        /*.then(decoded => {
+          //console.log("Decoded and Decompressed:", decoded);
+        })*/
+        .catch(error => console.error("Error:", error))
+    });
+
+    const copyZippedButton = document.querySelector("#copyZippedButton")
+    copyZippedButton.addEventListener("click", (event) => {
+      const zippedoutput = document.querySelector("#zippedoutput");
+      //zippedOutput.select();
+      navigator.clipboard
+        .writeText(zippedoutput.innerText)
+        .then(() => {
+          alert("successfully copied");
+        })
+        .catch(() => {
+          alert("something went wrong");
+        });
+    });
+
+    const saveFileButton = document.querySelector("#saveFile");
+    saveFileButton.addEventListener("click", (event) => {
+      download("my-file.txt", document.querySelector("#zippedoutput").innerText);
+    });
+
+  </script>
 </head>
 
 <body>
-<div>
-<!--<label for="numrows">Number of rows</label>-->
-Copy data to the textarea or generate example data.
-<input id="numrows" type="number" min="1000"  value="1000" step="1000"/>
-<button id="generate">Generate n rows Example Data</button>
-</div>
-<!--<input id="name" />
+  <div>
+    <!--<label for="numrows">Number of rows</label>-->
+    Copy data to the textarea or generate example data.
+    <input id="numrows" type="number" min="1000" value="1000" step="1000" />
+    <button id="generate">Generate n rows Example Data</button>
+  </div>
+  <!--<input id="name" />
 <input id="email" />
 -->
-<div class="content">
-  <div class="inner">
+  <div class="content">
+    <div class="inner">
       <div class="scroller">
         <textarea class="scroller" id="output"></textarea>
-      </div>     
+        <!--getting 1 million generated rows to load required style="display:none;"-->
+      </div>
+    </div>
   </div>
-</div>
-<div class="bottom">
-<button id="zipbutton">Generate gzip Base64</button>
-<button id="copyZippedButton">Copy gzip Base64 to clipboard</button>
-<pre id="zippedoutput"></pre>
-</div>
+  <div class="bottom">
+    <button id="zipbutton">Generate gzip Base64</button>
+    <button id="copyZippedButton">Copy gzip Base64 to clipboard</button>
+    <button id="saveFile">save gzip Base64 as file</button>
+    <pre style="display:hidden;" id="zippedoutput"></pre>
+  </div>
 
 </body>
 
